@@ -56,7 +56,6 @@ def run_server(ip, port):
     try:
         while True:
             data, address = sock.recvfrom(1024)
-            print(data)
             data_parse = urllib.parse.unquote_plus(data.decode())
             data_dict = {key: value for key, value in [el.split('=') for el in data_parse.split('&')]}
             value = data_dict.get("username")
