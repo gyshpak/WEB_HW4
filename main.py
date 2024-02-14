@@ -51,11 +51,12 @@ def run_server(ip, port):
     server = ip, port
     sock.bind(server)
     
-    with open(".\\storage\\data.json", "r") as file:
+    with open(Path_to_file, "r") as file:
         date_from_file:dict = json.load(file)
     try:
         while True:
             data, address = sock.recvfrom(1024)
+            print(data)
             data_parse = urllib.parse.unquote_plus(data.decode())
             data_dict = {key: value for key, value in [el.split('=') for el in data_parse.split('&')]}
             value = data_dict.get("username")
@@ -65,7 +66,7 @@ def run_server(ip, port):
             time_ = str(datetime.now())
             notes_dickt = {time_: data_dict}
             date_from_file.update(notes_dickt)
-            with open(".\\storage\\data.json", "w") as file:
+            with open(Path_to_file, "w") as file:
                 json.dump(date_from_file, file)
     except KeyboardInterrupt:
         print(f'Destroy server')
@@ -84,8 +85,9 @@ def run_client(data):
     sock.close()
 
 def isexist_def():
-    if not Path_to_file.exists():
+    if not Path_to_stor.exists():
         pathlib.Path.mkdir(Path_to_stor)
+    if not Path_to_file.exists():
         with open(Path_to_file, "w") as file:
             json.dump({}, file)
 
@@ -102,8 +104,8 @@ def run(server_class=HTTPServer, handler_class=HttpHandler):
 
 UDP_IP = '127.0.0.1'
 UDP_PORT = 8080
-Path_to_stor = pathlib.Path(".\storage")
-Path_to_file = pathlib.Path(".\storage\data.json")
+Path_to_stor = pathlib.Path("./storage")
+Path_to_file = pathlib.Path("./storage/data.json")
 
 
 if __name__ == '__main__':
