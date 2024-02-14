@@ -1,11 +1,11 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import urllib.parse
+import json
 import mimetypes
 import pathlib
 import socket
 import threading
+import urllib.parse
 from datetime import datetime
-import json
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
 class HttpHandler(BaseHTTPRequestHandler):
@@ -28,7 +28,6 @@ class HttpHandler(BaseHTTPRequestHandler):
         self.send_header('Location', '/')
         self.end_headers()
 
-
     def send_html_file(self, filename, status=200):
         self.send_response(status)
         self.send_header('Content-type', 'text/html')
@@ -47,15 +46,10 @@ class HttpHandler(BaseHTTPRequestHandler):
         with open(f'.{self.path}', 'rb') as file:
             self.wfile.write(file.read())
 
-UDP_IP = '127.0.0.1'
-UDP_PORT = 8080
-MESSAGE = "Python Web development exit"
-
 def run_server(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server = ip, port
     sock.bind(server)
-    # time_ = time.strftime("%F %T")
     
     with open(".\\storage\\data.json", "r") as file:
         date_from_file:dict = json.load(file)
@@ -73,8 +67,6 @@ def run_server(ip, port):
             date_from_file.update(notes_dickt)
             with open(".\\storage\\data.json", "w") as file:
                 json.dump(date_from_file, file)
-
-
     except KeyboardInterrupt:
         print(f'Destroy server')
     finally:
@@ -87,17 +79,20 @@ def run_client(data):
     sock.sendto(data, server)
     response, address = sock.recvfrom(1024)
     if response.decode() == "exit":
-        print("HTTP Server")
+        print("HTTP Server Closed")
         exit(0)
     sock.close()
 
-
+def isexist_def():
+    if not Path_to_file.exists():
+        pathlib.Path.mkdir(Path_to_stor)
+        with open(Path_to_file, "w") as file:
+            json.dump({}, file)
 
 def run(server_class=HTTPServer, handler_class=HttpHandler):
-
+    isexist_def()
     server = threading.Thread(target=run_server, args=(UDP_IP, UDP_PORT))
     server.start()
-
     server_address = ('', 3000)
     http = server_class(server_address, handler_class)
     try:
@@ -105,7 +100,11 @@ def run(server_class=HTTPServer, handler_class=HttpHandler):
     except KeyboardInterrupt:
         http.server_close()
 
-    print('Done!')
+UDP_IP = '127.0.0.1'
+UDP_PORT = 8080
+Path_to_stor = pathlib.Path(".\storage")
+Path_to_file = pathlib.Path(".\storage\data.json")
+
 
 if __name__ == '__main__':
     run()
